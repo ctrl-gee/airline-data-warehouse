@@ -1,0 +1,33 @@
+-- Create the DimDate table
+CREATE TABLE dim_date (
+    date_key INTEGER PRIMARY KEY,
+    full_date DATE NOT NULL,
+    day_of_month INTEGER NOT NULL,
+    day_name VARCHAR(10) NOT NULL,
+    day_of_week INTEGER NOT NULL,
+    month INTEGER NOT NULL,
+    month_name VARCHAR(10) NOT NULL,
+    quarter INTEGER NOT NULL,
+    year INTEGER NOT NULL
+);
+
+-- Generate dates from 2023-01-01 to 2024-12-31
+INSERT INTO dim_date (
+    date_key, full_date, day_of_month, day_name, 
+    day_of_week, month, month_name, quarter, year
+)
+SELECT
+    CAST(TO_CHAR(dates, 'YYYYMMDD') AS INTEGER) AS date_key,
+    dates AS full_date,
+    EXTRACT(DAY FROM dates) AS day_of_month,
+    TO_CHAR(dates, 'Day') AS day_name,
+    EXTRACT(DOW FROM dates) + 1 AS day_of__week,
+    EXTRACT(MONTH FROM dates) AS month,
+    TO_CHAR(dates, 'Month') AS month_name,
+    EXTRACT(QUARTER FROM dates) AS quarter,
+    EXTRACT(YEAR FROM dates) AS year
+FROM generate_series(
+    '2023-01-01'::timestamp,
+    '2024-12-31'::timestamp,
+    '1 day'::interval
+) AS dates;
