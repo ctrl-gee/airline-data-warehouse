@@ -1,0 +1,7 @@
+CREATE TABLE flight_status_updates (
+    id SERIAL PRIMARY KEY,
+    flight_key VARCHAR(10) NOT NULL,
+    status VARCHAR(20) NOT NULL,
+    delay_minutes INTEGER DEFAULT 0,
+    update_timestamp TIMESTAMP DEFAULT NOW()
+);
