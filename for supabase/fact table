@@ -1,0 +1,16 @@
+-- Create fact_sales table combining both sales sources
+CREATE TABLE fact_sales (
+    transaction_id VARCHAR(20) PRIMARY KEY,
+    date_key INTEGER REFERENCES dim_date(date_key),
+    passenger_key VARCHAR(4) REFERENCES dim_passenger(passenger_key),
+    flight_key VARCHAR(10) REFERENCES dim_flight(flight_key),
+    ticket_price DECIMAL(10,2) NOT NULL,
+    taxes DECIMAL(10,2) NOT NULL,
+    baggage_fees DECIMAL(10,2) NOT NULL,
+    total_amount DECIMAL(10,2) NOT NULL,
+    sales_source VARCHAR(20) CHECK (sales_source IN ('travel_agency', 'corporate')),
+    flight_status VARCHAR(20) DEFAULT 'scheduled',
+    delay_minutes INTEGER DEFAULT 0,
+    is_eligible_insurance BOOLEAN DEFAULT FALSE,
+    created_at TIMESTAMP DEFAULT NOW()
+);
