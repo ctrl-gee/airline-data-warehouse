@@ -1,0 +1,1035 @@
+<!-- Updated index.html - SIMPLIFIED UPLOAD -->
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Airline Data Warehouse - Smart Upload</title>
+        <style>
+            * {
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box;
+            }
+
+            body {
+                font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+                line-height: 1.6;
+                color: #333;
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                min-height: 100vh;
+                padding: 20px;
+            }
+
+            .container {
+                max-width: 1000px;
+                margin: 0 auto;
+                background: white;
+                padding: 30px;
+                border-radius: 20px;
+                box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            }
+
+            header {
+                text-align: center;
+                margin-bottom: 30px;
+                padding-bottom: 20px;
+                border-bottom: 2px solid #f0f0f0;
+            }
+
+            h1 {
+                color: #2c3e50;
+                margin-bottom: 10px;
+                font-size: 2.5rem;
+            }
+
+            .subtitle {
+                color: #7f8c8d;
+                font-size: 1.1rem;
+            }
+
+            .main-grid {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 30px;
+                margin-bottom: 30px;
+            }
+
+            @media (max-width: 768px) {
+                .main-grid {
+                    grid-template-columns: 1fr;
+                }
+            }
+
+            .card {
+                background: #f8f9fa;
+                padding: 25px;
+                border-radius: 15px;
+                border: 1px solid #e9ecef;
+                transition:
+                    transform 0.3s,
+                    box-shadow 0.3s;
+            }
+
+            .card:hover {
+                transform: translateY(-5px);
+                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            }
+
+            .card h2 {
+                color: #3498db;
+                margin-bottom: 20px;
+                font-size: 1.5rem;
+            }
+
+            .upload-area {
+                border: 3px dashed #3498db;
+                border-radius: 15px;
+                padding: 40px 20px;
+                text-align: center;
+                background: #f8faff;
+                cursor: pointer;
+                transition: all 0.3s;
+                margin-bottom: 20px;
+            }
+
+            .upload-area:hover {
+                background: #e3f2fd;
+                border-color: #2980b9;
+            }
+
+            .upload-area.dragover {
+                background: #d4edda;
+                border-color: #28a745;
+                border-style: solid;
+            }
+
+            .upload-icon {
+                font-size: 48px;
+                color: #3498db;
+                margin-bottom: 15px;
+            }
+
+            .upload-text {
+                font-size: 1.1rem;
+                color: #7f8c8d;
+                margin-bottom: 10px;
+            }
+
+            .file-list {
+                margin-top: 20px;
+                max-height: 200px;
+                overflow-y: auto;
+            }
+
+            .file-item {
+                background: white;
+                padding: 10px 15px;
+                margin-bottom: 8px;
+                border-radius: 8px;
+                border-left: 4px solid #3498db;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+            }
+
+            .file-item.success {
+                border-left-color: #28a745;
+            }
+
+            .file-item.error {
+                border-left-color: #dc3545;
+            }
+
+            .file-name {
+                font-weight: 500;
+                max-width: 70%;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+            }
+
+            .file-status {
+                font-size: 0.9rem;
+                padding: 3px 10px;
+                border-radius: 12px;
+                font-weight: 600;
+            }
+
+            .status-pending {
+                background: #fff3cd;
+                color: #856404;
+            }
+
+            .status-success {
+                background: #d4edda;
+                color: #155724;
+            }
+
+            .status-error {
+                background: #f8d7da;
+                color: #721c24;
+            }
+
+            .btn {
+                background: #3498db;
+                color: white;
+                border: none;
+                padding: 12px 30px;
+                border-radius: 8px;
+                font-size: 1rem;
+                font-weight: 600;
+                cursor: pointer;
+                transition: background 0.3s;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                gap: 8px;
+            }
+
+            .btn:hover {
+                background: #2980b9;
+            }
+
+            .btn:disabled {
+                background: #95a5a6;
+                cursor: not-allowed;
+            }
+
+            .btn-success {
+                background: #28a745;
+            }
+
+            .btn-success:hover {
+                background: #218838;
+            }
+
+            .btn-danger {
+                background: #dc3545;
+            }
+
+            .btn-danger:hover {
+                background: #c82333;
+            }
+
+            .result-box {
+                margin-top: 25px;
+                padding: 20px;
+                border-radius: 10px;
+                background: #e8f4f8;
+                border-left: 5px solid #3498db;
+                display: none;
+            }
+
+            .result-box.show {
+                display: block;
+                animation: slideIn 0.5s ease-out;
+            }
+
+            @keyframes slideIn {
+                from {
+                    opacity: 0;
+                    transform: translateY(-20px);
+                }
+                to {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
+            }
+
+            .result-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 15px;
+            }
+
+            .result-stats {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+                gap: 15px;
+                margin-bottom: 20px;
+            }
+
+            .stat-box {
+                background: white;
+                padding: 15px;
+                border-radius: 8px;
+                text-align: center;
+                box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+            }
+
+            .stat-value {
+                font-size: 2rem;
+                font-weight: 700;
+                color: #2c3e50;
+                margin-bottom: 5px;
+            }
+
+            .stat-label {
+                font-size: 0.9rem;
+                color: #7f8c8d;
+                text-transform: uppercase;
+                letter-spacing: 1px;
+            }
+
+            .file-results {
+                max-height: 300px;
+                overflow-y: auto;
+            }
+
+            .file-result-item {
+                background: white;
+                padding: 12px;
+                margin-bottom: 10px;
+                border-radius: 8px;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+            }
+
+            .detected-type {
+                padding: 4px 12px;
+                border-radius: 20px;
+                font-size: 0.85rem;
+                font-weight: 600;
+            }
+
+            .type-passengers {
+                background: #e8f6f3;
+                color: #16a085;
+            }
+            .type-airports {
+                background: #ebf5fb;
+                color: #2980b9;
+            }
+            .type-airlines {
+                background: #fef9e7;
+                color: #f39c12;
+            }
+            .type-flights {
+                background: #f4ecf7;
+                color: #8e44ad;
+            }
+            .type-sales {
+                background: #e8f8f5;
+                color: #1abc9c;
+            }
+            .type-unknown {
+                background: #f2f3f4;
+                color: #7f8c8d;
+            }
+
+            .progress-bar {
+                width: 100%;
+                height: 6px;
+                background: #ecf0f1;
+                border-radius: 3px;
+                margin: 15px 0;
+                overflow: hidden;
+                display: none;
+            }
+
+            .progress-fill {
+                height: 100%;
+                background: linear-gradient(90deg, #3498db, #2ecc71);
+                width: 0%;
+                transition: width 0.3s;
+            }
+
+            .insurance-section {
+                background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+                color: white;
+                padding: 25px;
+                border-radius: 15px;
+                margin-top: 30px;
+            }
+
+            .insurance-section h2 {
+                color: white;
+                margin-bottom: 20px;
+            }
+
+            .form-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+                gap: 15px;
+                margin-bottom: 20px;
+            }
+
+            .form-group {
+                margin-bottom: 15px;
+            }
+
+            .form-group label {
+                display: block;
+                margin-bottom: 8px;
+                font-weight: 600;
+                color: #2c3e50;
+            }
+
+            .form-control {
+                width: 100%;
+                padding: 12px 15px;
+                border: 2px solid #ddd;
+                border-radius: 8px;
+                font-size: 1rem;
+                transition: border-color 0.3s;
+            }
+
+            .form-control:focus {
+                outline: none;
+                border-color: #3498db;
+                box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+            }
+
+            .insurance-result {
+                margin-top: 20px;
+                padding: 20px;
+                border-radius: 10px;
+                display: none;
+                animation: fadeIn 0.5s;
+            }
+
+            .result-eligible {
+                background: #d4edda;
+                border-left: 5px solid #28a745;
+                color: #155724;
+            }
+
+            .result-not-eligible {
+                background: #f8d7da;
+                border-left: 5px solid #dc3545;
+                color: #721c24;
+            }
+
+            @keyframes fadeIn {
+                from {
+                    opacity: 0;
+                }
+                to {
+                    opacity: 1;
+                }
+            }
+
+            .loading {
+                display: inline-block;
+                width: 20px;
+                height: 20px;
+                border: 3px solid #f3f3f3;
+                border-top: 3px solid #3498db;
+                border-radius: 50%;
+                animation: spin 1s linear infinite;
+            }
+
+            @keyframes spin {
+                0% {
+                    transform: rotate(0deg);
+                }
+                100% {
+                    transform: rotate(360deg);
+                }
+            }
+
+            .notification {
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                padding: 15px 25px;
+                border-radius: 8px;
+                color: white;
+                font-weight: 600;
+                box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+                z-index: 1000;
+                animation: slideInRight 0.3s ease-out;
+                display: none;
+            }
+
+            .notification.success {
+                background: #28a745;
+            }
+
+            .notification.error {
+                background: #dc3545;
+            }
+
+            .notification.info {
+                background: #17a2b8;
+            }
+
+            @keyframes slideInRight {
+                from {
+                    transform: translateX(100%);
+                    opacity: 0;
+                }
+                to {
+                    transform: translateX(0);
+                    opacity: 1;
+                }
+            }
+
+            footer {
+                text-align: center;
+                margin-top: 40px;
+                padding-top: 20px;
+                border-top: 1px solid #eee;
+                color: #7f8c8d;
+                font-size: 0.9rem;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <header>
+                <h1>Airline Data Warehouse</h1>
+                <p class="subtitle">
+                    Smart CSV Upload with Automatic File Detection
+                </p>
+            </header>
+
+            <div class="main-grid">
+                <!-- Left Column: Smart Upload -->
+                <div class="card">
+                    <h2>Smart File Upload</h2>
+
+                    <div id="uploadArea" class="upload-area">
+                        <div class="upload-icon">📁</div>
+                        <div class="upload-text">
+                            <strong>Drag & Drop CSV Files Here</strong><br />
+                            or click to browse
+                        </div>
+                        <div style="font-size: 0.9rem; color: #95a5a6">
+                            Maximum 10 files • 10MB each
+                        </div>
+                    </div>
+
+                    <input
+                        type="file"
+                        id="fileInput"
+                        multiple
+                        accept=".csv"
+                        style="display: none"
+                    />
+
+                    <div id="fileList" class="file-list"></div>
+
+                    <div class="progress-bar" id="progressBar">
+                        <div class="progress-fill" id="progressFill"></div>
+                    </div>
+
+                    <button id="uploadBtn" class="btn" style="width: 100%">
+                        <span id="uploadText">Upload & Process Files</span>
+                        <span
+                            id="uploadLoading"
+                            class="loading"
+                            style="display: none"
+                        ></span>
+                    </button>
+
+                    <button
+                        id="clearBtn"
+                        class="btn btn-danger"
+                        style="width: 100%; margin-top: 10px"
+                    >
+                        Clear All Files
+                    </button>
+                </div>
+
+                <!-- Right Column: Insurance Check -->
+                <div class="card">
+                    <h2>🛡️ Insurance Eligibility Check</h2>
+
+                    <div class="form-group">
+                        <label for="flightId">Flight ID:</label>
+                        <input
+                            type="text"
+                            id="flightId"
+                            class="form-control"
+                            placeholder="Enter Flight ID (e.g., AA100)"
+                            required
+                        />
+                    </div>
+
+                    <div class="form-group">
+                        <label for="passengerName"
+                            >Passenger Name (Optional):</label
+                        >
+                        <input
+                            type="text"
+                            id="passengerName"
+                            class="form-control"
+                            placeholder="Enter passenger name"
+                        />
+                    </div>
+
+                    <button
+                        id="checkInsuranceBtn"
+                        class="btn"
+                        style="width: 100%"
+                    >
+                        Check Eligibility
+                    </button>
+
+                    <div id="insuranceResult" class="insurance-result"></div>
+                </div>
+            </div>
+
+            <!-- Results Section -->
+            <div id="resultsBox" class="result-box">
+                <div class="result-header">
+                    <h3 style="margin: 0">Processing Results</h3>
+                    <button
+                        onclick="closeResults()"
+                        style="
+                            background: none;
+                            border: none;
+                            font-size: 1.5rem;
+                            cursor: pointer;
+                            color: #666;
+                        "
+                    >
+                        ×
+                    </button>
+                </div>
+
+                <div class="result-stats" id="resultStats"></div>
+
+                <div id="fileResults" class="file-results"></div>
+            </div>
+
+            <!-- Dirty Data Monitor -->
+            <div class="card" style="margin-top: 30px">
+                <h2>Data Quality Monitor</h2>
+                <p style="color: #666; margin-bottom: 15px">
+                    View records that couldn't be processed due to data quality
+                    issues.
+                </p>
+                <button onclick="loadDirtyData()" class="btn" id="loadDirtyBtn">
+                    Load Dirty Data
+                </button>
+                <div id="dirtyDataContainer" style="margin-top: 15px"></div>
+            
+
+            <footer>
+                <p>
+                    Airline Data Warehouse System | Automatic File Detection |
+                    Real-time Processing
+                </p>
+                <p style="font-size: 0.8rem; margin-top: 10px">
+                    Supported files: Passengers.csv, Airports.csv, Airlines.csv,
+                    Flights.csv, Sales_Data.csv
+                </p>
+            </footer>
+        </div>
+
+        <!-- Notification Container -->
+        <div id="notification" class="notification"></div>
+
+        <script>
+            // DOM Elements
+            const uploadArea = document.getElementById("uploadArea");
+            const fileInput = document.getElementById("fileInput");
+            const fileList = document.getElementById("fileList");
+            const uploadBtn = document.getElementById("uploadBtn");
+            const clearBtn = document.getElementById("clearBtn");
+            const progressBar = document.getElementById("progressBar");
+            const progressFill = document.getElementById("progressFill");
+            const resultsBox = document.getElementById("resultsBox");
+            const notification = document.getElementById("notification");
+
+            let selectedFiles = [];
+
+            // Drag & Drop functionality
+            uploadArea.addEventListener("click", () => fileInput.click());
+
+            uploadArea.addEventListener("dragover", (e) => {
+                e.preventDefault();
+                uploadArea.classList.add("dragover");
+            });
+
+            uploadArea.addEventListener("dragleave", () => {
+                uploadArea.classList.remove("dragover");
+            });
+
+            uploadArea.addEventListener("drop", (e) => {
+                e.preventDefault();
+                uploadArea.classList.remove("dragover");
+
+                const files = Array.from(e.dataTransfer.files).filter((f) =>
+                    f.name.toLowerCase().endsWith(".csv"),
+                );
+
+                if (files.length > 0) {
+                    addFiles(files);
+                } else {
+                    showNotification("Please drop CSV files only", "error");
+                }
+            });
+
+            // File input change
+            fileInput.addEventListener("change", (e) => {
+                const files = Array.from(e.target.files).filter((f) =>
+                    f.name.toLowerCase().endsWith(".csv"),
+                );
+                addFiles(files);
+            });
+
+            // Add files to list
+            function addFiles(files) {
+                files.forEach((file) => {
+                    // Check if file already exists
+                    const existingIndex = selectedFiles.findIndex(
+                        (f) => f.name === file.name && f.size === file.size,
+                    );
+
+                    if (existingIndex === -1) {
+                        selectedFiles.push(file);
+                    }
+                });
+
+                // Update file list display
+                renderFileList();
+
+                // Show notification
+                if (files.length > 0) {
+                    showNotification(
+                        `Added ${files.length} file(s)`,
+                        "success",
+                    );
+                }
+            }
+
+            // Render file list
+            function renderFileList() {
+                if (selectedFiles.length === 0) {
+                    fileList.innerHTML =
+                        '<div style="color: #95a5a6; text-align: center; padding: 20px;">No files selected</div>';
+                    uploadBtn.disabled = true;
+                    return;
+                }
+
+                fileList.innerHTML = "";
+                uploadBtn.disabled = false;
+
+                selectedFiles.forEach((file, index) => {
+                    const fileItem = document.createElement("div");
+                    fileItem.className = "file-item";
+                    fileItem.innerHTML = `
+                    <div class="file-name" title="${file.name}">
+                        ${file.name} (${formatFileSize(file.size)})
+                    </div>
+                    <button onclick="removeFile(${index})" style="
+                        background: none;
+                        border: none;
+                        color: #dc3545;
+                        cursor: pointer;
+                        font-size: 1.2rem;
+                        padding: 0 5px;
+                    ">×</button>
+                `;
+                    fileList.appendChild(fileItem);
+                });
+            }
+
+            // Remove file
+            function removeFile(index) {
+                selectedFiles.splice(index, 1);
+                renderFileList();
+            }
+
+            // Clear all files
+            clearBtn.addEventListener("click", () => {
+                selectedFiles = [];
+                renderFileList();
+                showNotification("All files cleared", "info");
+            });
+
+            // Upload files
+            uploadBtn.addEventListener("click", async () => {
+                if (selectedFiles.length === 0) return;
+
+                // Show progress bar
+                progressBar.style.display = "block";
+                progressFill.style.width = "0%";
+
+                // Disable button and show loading
+                uploadBtn.disabled = true;
+                document.getElementById("uploadText").style.display = "none";
+                document.getElementById("uploadLoading").style.display =
+                    "inline-block";
+
+                try {
+                    const formData = new FormData();
+                    selectedFiles.forEach((file) => {
+                        formData.append("files", file);
+                    });
+
+                    // Simulate progress
+                    let progress = 0;
+                    const progressInterval = setInterval(() => {
+                        progress += 5;
+                        progressFill.style.width = `${Math.min(progress, 90)}%`;
+
+                        if (progress >= 90) {
+                            clearInterval(progressInterval);
+                        }
+                    }, 100);
+
+                    // Send request
+                    const response = await fetch("/upload-auto", {
+                        method: "POST",
+                        body: formData,
+                    });
+
+                    clearInterval(progressInterval);
+                    progressFill.style.width = "100%";
+
+                    const result = await response.json();
+
+                    if (result.success) {
+                        showNotification(
+                            `Successfully processed ${result.summary.successfulFiles} file(s)`,
+                            "success",
+                        );
+                        showResults(result.summary);
+                        selectedFiles = [];
+                        renderFileList();
+                    } else {
+                        showNotification(
+                            `Upload failed: ${result.error}`,
+                            "error",
+                        );
+                    }
+                } catch (error) {
+                    showNotification(`Upload error: ${error.message}`, "error");
+                } finally {
+                    // Reset UI
+                    setTimeout(() => {
+                        progressBar.style.display = "none";
+                        progressFill.style.width = "0%";
+                        uploadBtn.disabled = false;
+                        document.getElementById("uploadText").style.display =
+                            "inline";
+                        document.getElementById("uploadLoading").style.display =
+                            "none";
+                    }, 1000);
+                }
+            });
+
+            // Show results
+            function showResults(summary) {
+                // Update stats
+                document.getElementById("resultStats").innerHTML = `
+                <div class="stat-box">
+                    <div class="stat-value">${summary.totalFiles}</div>
+                    <div class="stat-label">Files</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value">${summary.totalRecords}</div>
+                    <div class="stat-label">Total Records</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value">${summary.totalCleanRecords}</div>
+                    <div class="stat-label">Clean Records</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value">${summary.totalDirtyRecords}</div>
+                    <div class="stat-label">Dirty Records</div>
+                </div>
+            `;
+
+                // Show file results
+                let fileResultsHTML =
+                    '<h4 style="margin-bottom: 15px;">File Details:</h4>';
+
+                summary.fileResults.forEach((result, index) => {
+                    const typeClass = result.fileType
+                        ? `type-${result.fileType.replace("_", "-")}`
+                        : "type-unknown";
+                    const typeLabel = result.fileType
+                        ? result.fileType.replace("_", " ")
+                        : "Unknown";
+
+                    fileResultsHTML += `
+                    <div class="file-result-item">
+                        <div>
+                            <strong>${result.originalFilename || "Unknown file"}</strong><br>
+                            <small>Detected as: <span class="detected-type ${typeClass}">${typeLabel}</span></small>
+                        </div>
+                        <div style="text-align: right;">
+                            ${result.success ? "✅" : "❌"}<br>
+                            <small>${result.cleanRecords || 0} clean, ${result.dirtyRecords || 0} dirty</small>
+                        </div>
+                    </div>
+                `;
+                });
+
+                document.getElementById("fileResults").innerHTML =
+                    fileResultsHTML;
+
+                // Show results box
+                resultsBox.classList.add("show");
+
+                // Scroll to results
+                resultsBox.scrollIntoView({ behavior: "smooth" });
+            }
+
+            // Close results
+            function closeResults() {
+                resultsBox.classList.remove("show");
+            }
+
+            // Insurance check
+            document
+                .getElementById("checkInsuranceBtn")
+                .addEventListener("click", async () => {
+                    const flightId = document
+                        .getElementById("flightId")
+                        .value.trim();
+                    const passengerName = document
+                        .getElementById("passengerName")
+                        .value.trim();
+
+                    if (!flightId) {
+                        showNotification("Please enter a Flight ID", "error");
+                        return;
+                    }
+
+                    const resultDiv =
+                        document.getElementById("insuranceResult");
+                    resultDiv.innerHTML =
+                        '<div class="loading"></div> Checking...';
+                    resultDiv.className = "insurance-result";
+                    resultDiv.style.display = "block";
+
+                    try {
+                        const response = await fetch("/check-insurance", {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({
+                                flightId,
+                                passengerName,
+                            }),
+                        });
+
+                        const result = await response.json();
+
+                        if (result.eligible) {
+                            resultDiv.innerHTML = `
+                        <h3 style="margin-top: 0;">Customer is ELIGIBLE for Insurance</h3>
+                        <p><strong>Flight:</strong> ${flightId}</p>
+                        <p><strong>Delay:</strong> ${result.delayMinutes} minutes (${Math.floor(result.delayMinutes / 60)}h ${result.delayMinutes % 60}m)</p>
+                        <p><strong>Reason:</strong> Flight delayed more than 4 hours</p>
+                    `;
+                            resultDiv.className =
+                                "insurance-result result-eligible";
+                        } else {
+                            resultDiv.innerHTML = `
+                        <h3 style="margin-top: 0;">Customer is NOT ELIGIBLE for Insurance</h3>
+                        <p><strong>Flight:</strong> ${flightId}</p>
+                        <p><strong>Delay:</strong> ${result.delayMinutes || 0} minutes</p>
+                        <p><strong>Reason:</strong> Flight delay is less than 4 hours</p>
+                    `;
+                            resultDiv.className =
+                                "insurance-result result-not-eligible";
+                        }
+                    } catch (error) {
+                        resultDiv.innerHTML = `<p style="color: #dc3545;">Error: ${error.message}</p>`;
+                        resultDiv.className =
+                            "insurance-result result-not-eligible";
+                    }
+                });
+
+            // Load dirty data
+            async function loadDirtyData() {
+                const btn = document.getElementById("loadDirtyBtn");
+                const originalText = btn.innerHTML;
+                btn.innerHTML = '<div class="loading"></div> Loading...';
+                btn.disabled = true;
+
+                try {
+                    const response = await fetch("/dirty-data");
+                    const data = await response.json();
+
+                    let html = "<h3>Dirty Data Records</h3>";
+
+                    if (data.length === 0) {
+                        html +=
+                            '<p style="color: #666;">No dirty data found. All records are clean.</p>';
+                    } else {
+                        html += `<p style="color: #666;">Found ${data.length} dirty records:</p>`;
+
+                        data.slice(0, 10).forEach((record) => {
+                            html += `
+                            <div style="
+                                background: white;
+                                padding: 15px;
+                                margin-bottom: 10px;
+                                border-radius: 8px;
+                                border-left: 4px solid #dc3545;
+                            ">
+                                <div style="display: flex; justify-content: space-between;">
+                                    <strong>Source: ${record.source_table}</strong>
+                                    <small>${new Date(record.created_at).toLocaleString()}</small>
+                                </div>
+                                <p><strong>Error:</strong> ${record.error_reason}</p>
+                                <details>
+                                    <summary>View Original Data</summary>
+                                    <pre style="
+                                        background: #f8f9fa;
+                                        padding: 10px;
+                                        border-radius: 5px;
+                                        margin-top: 10px;
+                                        font-size: 0.9rem;
+                                        max-height: 200px;
+                                        overflow: auto;
+                                    ">${JSON.stringify(record.original_data, null, 2)}</pre>
+                                </details>
+                            </div>
+                        `;
+                        });
+
+                        if (data.length > 10) {
+                            html += `<p style="color: #666;">... and ${data.length - 10} more records</p>`;
+                        }
+                    }
+
+                    document.getElementById("dirtyDataContainer").innerHTML =
+                        html;
+                } catch (error) {
+                    document.getElementById("dirtyDataContainer").innerHTML =
+                        `<p style="color: #dc3545;">Error loading dirty data: ${error.message}</p>`;
+                } finally {
+                    btn.innerHTML = originalText;
+                    btn.disabled = false;
+                }
+            }
+
+            // Helper functions
+            function formatFileSize(bytes) {
+                if (bytes === 0) return "0 Bytes";
+                const k = 1024;
+                const sizes = ["Bytes", "KB", "MB", "GB"];
+                const i = Math.floor(Math.log(bytes) / Math.log(k));
+                return (
+                    parseFloat((bytes / Math.pow(k, i)).toFixed(2)) +
+                    " " +
+                    sizes[i]
+                );
+            }
+
+            function showNotification(message, type = "info") {
+                notification.textContent = message;
+                notification.className = `notification ${type}`;
+                notification.style.display = "block";
+
+                setTimeout(() => {
+                    notification.style.display = "none";
+                }, 3000);
+            }
+
+            // Initialize
+            renderFileList();
+        </script>
+    </body>
+</html>
