@@ -1,0 +1,39 @@
+-- Create dim_passenger table
+CREATE TABLE dim_passenger (
+    passenger_key VARCHAR(4) PRIMARY KEY,
+    full_name VARCHAR(100) NOT NULL,
+    email VARCHAR(150) NOT NULL,
+    loyalty_status VARCHAR(20) CHECK (loyalty_status IN ('Bronze', 'Silver', 'Gold', 'Platinum'))
+);
+
+-- Create dim_airport table
+CREATE TABLE dim_airport (
+    airport_key VARCHAR(3) PRIMARY KEY,
+    airport_name VARCHAR(100) NOT NULL,
+    city VARCHAR(50) NOT NULL,
+    country VARCHAR(50) NOT NULL
+);
+
+-- Create dim_airline table
+CREATE TABLE dim_airline (
+    airline_key VARCHAR(3) PRIMARY KEY,
+    airline_name VARCHAR(100) NOT NULL,
+    alliance VARCHAR(20)
+);
+
+-- Create dim_flight table
+CREATE TABLE dim_flight (
+    flight_key VARCHAR(10) PRIMARY KEY,
+    origin_airport_key VARCHAR(3) REFERENCES dim_airport(airport_key),
+    destination_airport_key VARCHAR(3) REFERENCES dim_airport(airport_key),
+    aircraft_type VARCHAR(50)
+);
+
+-- Create dirty data table
+CREATE TABLE dirty_data (
+    id SERIAL PRIMARY KEY,
+    source_table VARCHAR(50),
+    original_data JSONB,
+    error_reason TEXT,
+    created_at TIMESTAMP DEFAULT NOW()
+);
