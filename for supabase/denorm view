@@ -1,0 +1,41 @@
+-- Create a denormalized view for analytics
+CREATE OR REPLACE VIEW v_airline_analytics AS
+SELECT 
+    fs.transaction_id,
+    fs.date_key,
+    dd.full_date,
+    dd.year,
+    dd.quarter,
+    dd.month_name,
+    dp.passenger_key,
+    dp.full_name,
+    dp.loyalty_status,
+    df.flight_key,
+    df.aircraft_type,
+    origin.airport_key as origin_airport,
+    origin.city as origin_city,
+    origin.country as origin_country,
+    dest.airport_key as destination_airport,
+    dest.city as destination_city,
+    dest.country as destination_country,
+    al.airline_name,
+    al.alliance,
+    fs.ticket_price,
+    fs.taxes,
+    fs.baggage_fees,
+    fs.total_amount,
+    fs.sales_source,
+    fs.flight_status,
+    fs.delay_minutes,
+    fs.is_eligible_insurance,
+    CASE 
+        WHEN fs.delay_minutes > 240 THEN 'Eligible'
+        ELSE 'Not Eligible'
+    END as insurance_eligibility_status
+FROM fact_sales fs
+JOIN dim_date dd ON fs.date_key = dd.date_key
+JOIN dim_passenger dp ON fs.passenger_key = dp.passenger_key
+JOIN dim_flight df ON fs.flight_key = df.flight_key
+JOIN dim_airport origin ON df.origin_airport_key = origin.airport_key
+JOIN dim_airport dest ON df.destination_airport_key = dest.airport_key
+LEFT JOIN dim_airline al ON LEFT(df.flight_key, 2) = al.airline_key;
