@@ -1,0 +1,87 @@
+-- Function to standardize passenger key
+CREATE OR REPLACE FUNCTION standardize_passenger_key(input_key TEXT)
+RETURNS TEXT AS $$
+DECLARE
+    clean_key TEXT;
+BEGIN
+    -- Check if key contains 'P'
+    IF position('P' in input_key) = 0 THEN
+        RETURN NULL; -- Will trigger dirty data insertion
+    END IF;
+    
+    -- Extract last 3 digits after 'P'
+    clean_key := 'P' || SUBSTRING(REGEXP_REPLACE(input_key, '[^0-9]', '', 'g') FROM LENGTH(REGEXP_REPLACE(input_key, '[^0-9]', '', 'g')) - 2 FOR 3);
+    
+    -- Pad with zeros if necessary
+    WHILE LENGTH(clean_key) < 4 LOOP
+        clean_key := 'P' || LPAD(SUBSTRING(clean_key FROM 2), 3, '0');
+    END LOOP;
+    
+    RETURN clean_key;
+EXCEPTION
+    WHEN OTHERS THEN
+        RETURN NULL;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Function to standardize email
+CREATE OR REPLACE FUNCTION standardize_email(full_name TEXT, existing_email TEXT)
+RETURNS TEXT AS $$
+DECLARE
+    first_name TEXT;
+    last_name TEXT;
+    standardized_email TEXT;
+BEGIN
+    -- If email already exists and is valid, return it
+    IF existing_email IS NOT NULL AND existing_email ~ '^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$' THEN
+        RETURN LOWER(existing_email);
+    END IF;
+    
+    -- Extract first and last name
+    first_name := SPLIT_PART(TRIM(full_name), ' ', 1);
+    last_name := SPLIT_PART(TRIM(full_name), ' ', 2);
+    
+    -- If no last name, use first name only
+    IF last_name = '' THEN
+        standardized_email := LOWER(first_name) || '@example.com';
+    ELSE
+        standardized_email := LOWER(first_name) || '.' || LOWER(last_name) || '@example.com';
+    END IF;
+    
+    RETURN standardized_email;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Function to standardize country names
+CREATE OR REPLACE FUNCTION standardize_country(country_name TEXT)
+RETURNS TEXT AS $$
+BEGIN
+    CASE 
+        WHEN UPPER(country_name) IN ('US', 'USA', 'UNITED STATES', 'UNITED STATES OF AMERICA') THEN
+            RETURN 'USA';
+        WHEN UPPER(country_name) IN ('UK', 'UNITED KINGDOM', 'GREAT BRITAIN') THEN
+            RETURN 'UK';
+        WHEN UPPER(country_name) IN ('UAE', 'UNITED ARAB EMIRATES') THEN
+            RETURN 'UAE';
+        ELSE
+            RETURN INITCAP(LOWER(TRIM(country_name)));
+    END CASE;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Function to standardize amount
+CREATE OR REPLACE FUNCTION standardize_amount(amount_text TEXT)
+RETURNS DECIMAL(10,2) AS $$
+DECLARE
+    clean_amount TEXT;
+BEGIN
+    -- Remove currency symbols and commas
+    clean_amount := REGEXP_REPLACE(amount_text, '[^\d.]', '', 'g');
+    
+    -- Convert to decimal
+    RETURN CAST(clean_amount AS DECIMAL(10,2));
+EXCEPTION
+    WHEN OTHERS THEN
+        RETURN 0.00;
+END;
+$$ LANGUAGE plpgsql;
